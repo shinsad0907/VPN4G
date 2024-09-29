@@ -4,9 +4,8 @@ from datetime import datetime, timedelta
 from Authentication import Authentication
 from payload import Payload
 import random
+from manager_admin import Admin
 import os
-
-
 
 app = Flask(__name__)
 app.secret_key = '1c2416c5bc4eba1897aa21ac6b724ee7879199dd70d1967e'
@@ -15,17 +14,55 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 class User(UserMixin):
-    pass
+    def __init__(self, email):
+        self.id = email
+        self.is_admin = False  # Default to False, will be set to True for admin
 
 @login_manager.user_loader
 def load_user(email):
-    user = User()
-    user.id = email
-    return user
+    return User(email)
 
 @app.route('/')
 def home():
     return render_template('login.html')
+
+@app.route('/loginadmin', methods=['GET', 'POST'])
+def loginadmin():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        # Thay thế với logic xác thực quản trị viên
+        if Authentication().data_loginadmin(email, password):  # Giả định có một phương thức xác thực cho admin
+            user = User(email)
+            login_user(user)
+            return redirect(url_for('admin_page'))
+        else:
+            flash('Thông tin đăng nhập không chính xác cho quản trị viên!')
+    return render_template('loginadmin.html')
+
+
+@app.route('/admin_page')
+@login_required
+def admin_page():
+    return render_template('admin.html')
+
+@app.route('/package_management')
+@login_required
+def package_management():
+    return render_template('package_management.html')
+
+@app.route('/transaction_management')
+@login_required
+def transaction_management():
+    return render_template('transaction_management.html')
+
+@app.route('/User_management')
+@login_required
+def User_management():
+    
+    users = Admin.user_manager()
+
+    return render_template('User_management.html',users=users)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -54,8 +91,7 @@ def login():
         status_login = Authentication().data_login(email, password)
 
         if status_login == 'Login Success':
-            user = User()
-            user.id = email
+            user = User(email)
             login_user(user)
             return redirect(url_for('home_page'))
         else:

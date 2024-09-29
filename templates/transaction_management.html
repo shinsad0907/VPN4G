@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NEKO VPN Admin - Quản lý Giao Dịch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #e6eeff;
+      }
+      .sidebar {
+        background-color: #2196f3;
+        color: white;
+      }
+      .sidebar a {
+        transition: background-color 0.3s;
+      }
+      .sidebar a:hover,
+      .sidebar a.active {
+        background-color: #1e88e5;
+      }
+      .content-area {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        font-weight: 500;
+        transition: all 0.3s;
+      }
+      .btn-primary {
+        background-color: #2196f3;
+        color: white;
+      }
+      /* New styles for mobile menu */
+      .mobile-menu {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 80%;
+        height: 100%;
+        background-color: #2196f3;
+        transition: left 0.3s ease-in-out;
+        z-index: 1000;
+        overflow-y: auto;
+      }
+
+      .mobile-menu.active {
+        left: 0;
+      }
+
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        z-index: 999;
+      }
+
+      .overlay.active {
+        display: block;
+      }
+    </style>
+  </head>
+  <body class="flex min-h-screen">
+    <!-- Sidebar -->
+    <div class="sidebar w-64 p-4 flex-shrink-0 hidden md:block">
+      <h1 class="text-2xl font-bold mb-6">NEKO VPN Admin</h1>
+      <nav>
+        <ul class="space-y-2">
+          <li>
+            <a
+              href="{{ url_for('admin_page') }}"
+              class="block py-2 px-4 rounded"
+              >Dashboard</a
+            >
+          </li>
+          <li>
+            <a
+              href="{{ url_for('User_management') }}"
+              class="block py-2 px-4 rounded"
+              >Quản lý Người Dùng</a
+            >
+          </li>
+          <li>
+            <a
+              href="{{ url_for('package_management') }}"
+              class="block py-2 px-4 rounded"
+              >Quản lý Gói Dịch Vụ</a
+            >
+          </li>
+          <li>
+            <a href="" class="block py-2 px-4 rounded active"
+              >Quản lý Giao Dịch</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Mobile menu (initially hidden) -->
+    <div id="mobileMenu" class="mobile-menu p-4">
+      <button id="closeMenu" class="text-white text-2xl mb-4">&times;</button>
+      <h1 class="text-2xl font-bold mb-6">NEKO VPN Admin</h1>
+      <nav>
+        <ul class="space-y-2">
+          <li>
+            <a
+              href="{{ url_for('admin_page') }}"
+              class="block py-2 px-4 rounded"
+              >Dashboard</a
+            >
+          </li>
+          <li>
+            <a
+              href="{{ url_for('User_management') }}"
+              class="block py-2 px-4 rounded"
+              >Quản lý Người Dùng</a
+            >
+          </li>
+          <li>
+            <a
+              href="{{ url_for('package_management') }}"
+              class="block py-2 px-4 rounded"
+              >Quản lý Gói Dịch Vụ</a
+            >
+          </li>
+          <li>
+            <a href="" class="block py-2 px-4 rounded active"
+              >Quản lý Giao Dịch</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Overlay -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Main content -->
+    <div class="flex-1 p-8">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">Quản lý Giao Dịch</h2>
+      <header class="md:hidden flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold">NEKO VPN</h1>
+        <button id="openMenu" class="text-2xl">☰</button>
+      </header>
+
+      <!-- Transaction search and filter -->
+      <div class="content-area p-6 mb-6">
+        <div class="flex space-x-4 mb-4">
+          <input
+            type="text"
+            placeholder="Tìm kiếm giao dịch"
+            class="flex-1 p-2 border rounded"
+          />
+          <input type="date" class="p-2 border rounded" />
+          <button class="btn btn-primary">Tìm kiếm</button>
+        </div>
+        <div class="flex space-x-4">
+          <select class="p-2 border rounded">
+            <option>Tất cả trạng thái</option>
+            <option>Thành công</option>
+            <option>Đang xử lý</option>
+            <option>Thất bại</option>
+          </select>
+          <select class="p-2 border rounded">
+            <option>Tất cả gói dịch vụ</option>
+            <option>VĨNH VIỄN VINA VIP</option>
+            <!-- Thêm các gói dịch vụ khác -->
+          </select>
+        </div>
+      </div>
+
+      <!-- Transaction list -->
+      <div class="content-area p-6">
+        <!-- Mobile header (visible only on small screens) -->
+
+        <h3 class="text-xl font-semibold mb-4">Lịch Sử Giao Dịch</h3>
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-100">
+              <th class="p-2 text-left">ID Giao Dịch</th>
+              <th class="p-2 text-left">Người Dùng</th>
+              <th class="p-2 text-left">Gói Dịch Vụ</th>
+              <th class="p-2 text-left">Số Tiền</th>
+              <th class="p-2 text-left">Ngày Giao Dịch</th>
+              <th class="p-2 text-left">Trạng Thái</th>
+              <th class="p-2 text-left">Hành Động</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="p-2">TRX001</td>
+              <td class="p-2">Nguyễn Văn A</td>
+              <td class="p-2">VĨNH VIỄN VINA VIP</td>
+              <td class="p-2">70,000đ</td>
+              <td class="p-2">2023-09-30 15:30:00</td>
+              <td class="p-2">
+                <span
+                  class="bg-green-200 text-green-800 py-1 px-2 rounded-full text-sm"
+                  >Thành công</span
+                >
+              </td>
+              <td class="p-2">
+                <button
+                  class="btn btn-primary"
+                  onclick="viewTransactionDetails('TRX001')"
+                >
+                  Chi tiết
+                </button>
+              </td>
+            </tr>
+            <!-- More transaction rows here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Transaction Details Modal -->
+    <div
+      id="transactionModal"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center"
+    >
+      <div class="bg-white p-8 rounded-lg w-1/2">
+        <h3 class="text-xl font-semibold mb-4">s</h3>
+      </div>
+    </div>
+    <script>
+      const openMenuBtn = document.getElementById("openMenu");
+      const closeMenuBtn = document.getElementById("closeMenu");
+      const mobileMenu = document.getElementById("mobileMenu");
+      const overlay = document.getElementById("overlay");
+
+      openMenuBtn.addEventListener("click", () => {
+        mobileMenu.classList.add("active");
+        overlay.classList.add("active");
+      });
+
+      closeMenuBtn.addEventListener("click", () => {
+        mobileMenu.classList.remove("active");
+        overlay.classList.remove("active");
+      });
+
+      overlay.addEventListener("click", () => {
+        mobileMenu.classList.remove("active");
+        overlay.classList.remove("active");
+      });
+    </script>
+  </body>
+</html>

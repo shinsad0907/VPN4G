@@ -18,6 +18,17 @@ class Authentication:
                 break
         
         return status
+    def data_loginadmin(self,gmail,password):
+        response = requests.get(url, headers=headers)
+        users = response.json()
+
+        status = 'Gmail & Password Wrong'
+        for user in users:
+            if 'gmail' in user and user['gmail'] == gmail and user['password'] == password and user['power']=='Admin':
+                status = 'Login Success'
+                break
+        
+        return status
 
     def data_register(self, gmail, password, awaypassword):
         response = requests.get(url, headers=headers)
