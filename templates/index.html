@@ -170,16 +170,20 @@
       <nav>
         <ul class="space-y-2">
           <li>
-            <a href="#" class="block py-2 px-4 rounded text-white">Trang Chủ</a>
+            <a href="{{ url_for('home_page') }}" class="block py-2 px-4 rounded"
+              >Trang Chủ</a
+            >
           </li>
           <li>
-            <a href="#" class="block py-2 px-4 rounded text-white"
+            <a href="{{ url_for('document') }}" class="block py-2 px-4 rounded"
               >Tài liệu sử dụng</a
             >
           </li>
-          <li class="font-bold mt-4 mb-2 text-sm text-white">GÓI DỊCH VỤ</li>
+          <li class="font-bold mt-4 mb-2 text-sm">GÓI DỊCH VỤ</li>
           <li>
-            <a href="#" class="block py-2 px-4 rounded text-white active"
+            <a
+              href="{{ url_for('index') }}"
+              class="block py-2 px-4 rounded active"
               >Mua Gói Dịch Vụ</a
             >
           </li>
