@@ -133,6 +133,64 @@
       .overlay.active {
         display: block;
       }
+
+      /* ... (keep the existing styles) ... */
+      .add-service-box {
+        border: 2px dashed #2196f3;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .add-service-box:hover {
+        background-color: #e3f2fd;
+      }
+      .add-icon {
+        font-size: 3rem;
+        color: #2196f3;
+        margin-bottom: 1rem;
+      }
+      .hidden {
+        display: none;
+      }
+
+      /* New styles for Server Sync Modal */
+      #serverSyncModal .modal-content {
+        max-width: 300px;
+      }
+
+      #serverSyncModal .btn {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        text-align: left;
+        padding: 10px;
+        margin-bottom: 8px;
+        transition: background-color 0.3s;
+      }
+
+      #serverSyncModal .btn:hover {
+        background-color: #1e88e5;
+      }
+
+      #serverSyncModal .btn span {
+        font-size: 1.2em;
+        margin-right: 10px;
+      }
+
+      #serverSyncModal .btn-red {
+        background-color: #ff4757;
+        color: white;
+        margin-top: 16px;
+      }
+
+      #serverSyncModal .btn-red:hover {
+        background-color: #ff6b81;
+      }
     </style>
   </head>
   <body class="flex min-h-screen">
@@ -284,7 +342,7 @@
             class="w-12 h-12 rounded-full mr-4 avatar"
           />
           <div>
-            <p class="font-semibold text-gray-800">shinnohope.0907@gmail.com</p>
+            <p class="font-semibold text-gray-800">{{ current_user }}</p>
             <p class="text-sm text-gray-500">THAM GIA NGÀY: 19/09/2024</p>
           </div>
         </div>
@@ -302,30 +360,53 @@
       </div>
 
       <!-- Package Information -->
-      <div class="content-box p-6">
+      <div id="Information_package" class="content-box p-6 hidden">
         <h3 class="text-xl font-bold mb-4 text-gray-800">THÔNG TIN GÓI</h3>
-        <p class="mb-2 text-gray-600 text-sm">
-          Hết hạn vào 20/10/2024, còn 23 ngày, Data được reset sau 23 ngày
-        </p>
+        <p class="mb-2 text-gray-600 text-sm">NULL</p>
         <div class="progress-bar mb-4">
           <div class="progress-bar-fill" style="width: 4%"></div>
         </div>
         <p class="mb-2 text-gray-700">
-          Đã sử dụng <span class="font-semibold">12.18 GB</span> / Tổng dung
-          lượng <span class="font-semibold">300.00 GB</span>
+          Đã sử dụng <span class="font-semibold">0</span> / Tổng dung lượng
+          <span class="font-semibold">300.00 GB</span>
         </p>
         <p class="mb-4 text-gray-700">
           SNI đang dùng:
           <span class="font-semibold">NẾN YTB VINA + VIETTEL</span>
         </p>
         <p class="mb-4 text-gray-700">
-          Thiết bị Online: <span class="font-semibold">0/2</span>
+          Thiết bị Online: <span class="font-semibold">0/1</span>
         </p>
         <div class="flex flex-wrap gap-2">
           <button class="btn btn-blue">Cài Đặt SNI</button>
           <button class="btn btn-yellow">Hướng Dẫn Sử Dụng</button>
           <button class="btn btn-gray">Lấy ID Apple</button>
           <button class="btn btn-purple">Đồng Bộ Máy Chủ Về APP</button>
+        </div>
+      </div>
+      <!-- New Modal for Server Sync -->
+      <div id="serverSyncModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <h3 class="text-xl font-bold mb-4">Đồng bộ máy chủ về app</h3>
+          <div class="flex flex-col space-y-2">
+            <button class="btn btn-blue w-full text-left">
+              <span class="mr-2">🔗</span> Sao chép liên kết
+            </button>
+            <button class="btn btn-blue w-full text-left">
+              <span class="mr-2">🔍</span> Quét mã QR để đăng ký
+            </button>
+          </div>
+          <button class="btn btn-red w-full mt-4">
+            Mua gói này nếu bạn đăng ký
+          </button>
+        </div>
+      </div>
+      <!-- Add Service Box -->
+      <div id="buy_package" class="content-box p-6 hidden">
+        <div class="add-service-box">
+          <span class="add-icon">+</span>
+          <h3 class="text-xl font-bold mb-2 text-gray-800">MUA GÓI DỊCH VỤ</h3>
         </div>
       </div>
     </div>
@@ -358,6 +439,48 @@
     </div>
 
     <script>
+        // New JavaScript for Server Sync Modal
+      const serverSyncBtn = document.querySelector('.btn-purple');
+      const serverSyncModal = document.getElementById('serverSyncModal');
+      const serverSyncClose = serverSyncModal.querySelector('.close');
+
+      serverSyncBtn.addEventListener('click', () => {
+        serverSyncModal.style.display = 'block';
+      });
+
+      serverSyncClose.addEventListener('click', () => {
+        serverSyncModal.style.display = 'none';
+      });
+
+      window.addEventListener('click', (event) => {
+        if (event.target == serverSyncModal) {
+          serverSyncModal.style.display = 'none';
+        }
+      });
+
+
+      const packageData = {{ package | tojson }};
+      console.log(packageData)
+      if (packageData === false ){
+        document.getElementById("buy_package").classList.remove("hidden");
+      }else {
+        document.getElementById("Information_package").classList.remove("hidden");
+      }
+
+      // New function to copy link
+      function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+          alert('Đã sao chép: ' + text);
+        }).catch(err => {
+          console.error('Không thể sao chép text: ', err);
+        });
+      }
+          // Add click event to the "Sao chép liên kết" button
+      const copyLinkBtn = serverSyncModal.querySelector('button:nth-child(1)');
+      copyLinkBtn.addEventListener('click', () => {
+        copyToClipboard(packageData);
+      });
+
       const openMenuBtn = document.getElementById("openMenu");
       const closeMenuBtn = document.getElementById("closeMenu");
       const mobileMenu = document.getElementById("mobileMenu");

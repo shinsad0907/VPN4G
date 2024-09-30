@@ -46,7 +46,9 @@ class Authentication:
         if status == 'save success' and password == awaypassword:
             new_account = {
                 'gmail': gmail,
-                'password': password
+                'password': password,
+                "package": " ",
+
             }
             response = requests.post(url, headers=headers, json=new_account)
             if response.status_code == 201:  # Kiểm tra nếu tạo mới thành công
@@ -57,3 +59,16 @@ class Authentication:
             status = 'Awaypassword wrong'
 
         return status
+    
+    def user_package(email):
+        response = requests.get(url, headers=headers)
+        users = response.json()
+        for user in users:
+            if user['gmail'] == email:
+                if user['package'] == ' ':
+                    status =  False
+                    break
+                else: status = user['package'];break
+
+        return status
+

@@ -1,10 +1,10 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, session
+from flask import Flask, render_template, redirect, url_for, request, jsonify, flash, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from datetime import datetime, timedelta
 from Authentication import Authentication
 from payload import Payload
 import random
-from manager_admin import Admin
+from manager_admin import admin_management
 import os
 
 app = Flask(__name__)
@@ -40,7 +40,58 @@ def loginadmin():
             flash('Thông tin đăng nhập không chính xác cho quản trị viên!')
     return render_template('loginadmin.html')
 
+@app.route('/update_user', methods=['POST'])
+def update_user():
+    print(request.form)  # Kiểm tra dữ liệu form
+    email = request.form.get('email')
+    password = request.form.get('password')
+    package = request.form.get('package')
+    data_amount = request.form.get('dataAmount')
+    status = request.form.get('status')
+    admin_management().save_change_user(email,password,package,data_amount,status)
 
+    print(f"Thông tin người dùng đã được cập nhật: Email={email}, Gói={package}, Trạng thái={status}")
+    
+    return f"Thông tin người dùng đã được cập nhật: Email={email}, Gói={package}, Trạng thái={status}"
+
+
+@app.route('/update_package', methods=['POST'])
+def update_package():
+    # Extract form data
+    package_name = request.form.get('package_name')
+    price = request.form.get('price')
+    duration = request.form.get('duration')
+    data_limit = request.form.get('data_limit')
+    speed = request.form.get('speed')
+    device_limit = request.form.get('device_limit')
+    support = request.form.get('support')
+    sms = request.form.get('sms')
+    
+    if admin_management().add_package(package_name, price, duration, data_limit, speed, device_limit,support,sms):
+        return 'package added successfully'
+    else:
+        return 'Error in package'
+    
+@app.route('/edit_package', methods=['POST'])
+def edit_package():
+    # Extract form data
+    print(request.form)
+    package_name = request.form.get('package_name')
+    price = request.form.get('price')
+    duration = request.form.get('duration')
+    data_limit = request.form.get('data_limit')
+    speed = request.form.get('speed')
+    device_limit = request.form.get('device_limit')
+    support = request.form.get('support')
+    sms = request.form.get('sms_support')
+    
+    if admin_management().edit_package(package_name, price, duration, data_limit, speed, device_limit,support,sms):
+        return 'package added successfully'
+    else:
+        return 'Error in package'
+    
+
+    
 @app.route('/admin_page')
 @login_required
 def admin_page():
@@ -49,18 +100,20 @@ def admin_page():
 @app.route('/package_management')
 @login_required
 def package_management():
-    return render_template('package_management.html')
+    users = admin_management().package_management()
+
+    return render_template('package_management.html',users=users)
 
 @app.route('/transaction_management')
 @login_required
 def transaction_management():
     return render_template('transaction_management.html')
 
-@app.route('/User_management')
+@app.route('/user_management')
 @login_required
-def User_management():
+def user_management():
     
-    users = Admin.user_manager()
+    users = admin_management().User_management()
 
     return render_template('User_management.html',users=users)
 
@@ -103,7 +156,9 @@ login_manager.login_view = 'login'
 @app.route('/home_page')
 @login_required
 def home_page():
-    return render_template('home_page.html')
+    package = Authentication.user_package(current_user.id)
+    print(package)
+    return render_template('home_page.html',current_user=current_user.id,package=package)
 
 @app.route('/document')
 @login_required
@@ -113,7 +168,8 @@ def document():
 @app.route('/index')
 @login_required
 def index():
-    return render_template('index.html')
+    users = admin_management().package_management()
+    return render_template('index.html',users=users)
 
 @app.route('/payment')
 @login_required

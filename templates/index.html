@@ -252,14 +252,15 @@
         class="packages grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
       >
         <!-- VĨNH VIỄN VINA VIP Package -->
+        {% for user in users %}
         <div class="package">
           <div class="package-header">
             <div class="package-title text-lg font-bold mb-2">
               <span class="mr-2">🛒</span>
-              VĨNH VIỄN VINA VIP
+              {{ user.package_name }}
             </div>
             <div class="package-price text-2xl font-bold">
-              70,000<sup>đ</sup> /Vĩnh Viễn
+              {{ user.price }}/{{ user.duration }}
             </div>
           </div>
           <div class="package-content p-4">
@@ -276,23 +277,23 @@
             <ul class="package-features space-y-2">
               <li class="flex justify-between">
                 <span>🚀 Tốc Độ:</span>
-                <span class="highlight">Tối Đa 2 Gbps</span>
+                <span class="highlight">{{ user.speed }}</span>
               </li>
               <li class="flex justify-between">
                 <span>💾 Dung Lượng:</span>
-                <span class="highlight">512 GB</span>
+                <span class="highlight">{{ user.data_limit }}</span>
               </li>
               <li class="flex justify-between">
                 <span>📱 Giới Hạn:</span>
-                <span class="highlight">Id: 2 Thiết Bị/Gói</span>
+                <span class="highlight">{{ user.device_limit }}</span>
               </li>
               <li class="flex justify-between">
                 <span>🛠️ Hỗ Trợ:</span>
-                <span class="highlight">ADR - IOS</span>
+                <span class="highlight">{{ user.description }}</span>
               </li>
               <li class="flex justify-between">
                 <span>💬 Chi Hỗ Trợ SMS:</span>
-                <span class="highlight">VINA Soạn YT30 gửi 888</span>
+                <span class="highlight">VIETTEL</span>
               </li>
             </ul>
             <div class="server-info text-center font-bold my-4">
@@ -315,6 +316,7 @@
             </button>
           </div>
         </div>
+        {% endfor %}
 
         <!-- Add more package divs here for other VPN plans -->
       </div>

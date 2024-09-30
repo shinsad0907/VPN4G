@@ -75,6 +75,22 @@
       .overlay.active {
         display: block;
       }
+
+      @media (max-width: 640px) {
+        #editModal .bg-white {
+          margin: 1rem;
+          width: calc(100% - 2rem);
+        }
+      }
+
+      #editModal {
+        z-index: 1000;
+      }
+
+      #editModal .bg-white {
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
+      }
     </style>
   </head>
   <body class="flex min-h-screen">
@@ -92,7 +108,7 @@
           </li>
           <li>
             <a
-              href="{{ url_for('User_management') }}"
+              href="{{ url_for('user_management') }}"
               class="block py-2 px-4 rounded"
               >Quản lý Người Dùng</a
             >
@@ -128,7 +144,7 @@
           </li>
           <li>
             <a
-              href="{{ url_for('User_management') }}"
+              href="{{ url_for('user_management') }}"
               class="block py-2 px-4 rounded"
               >Quản lý Người Dùng</a
             >
@@ -161,45 +177,71 @@
       <h2 class="text-2xl font-bold text-gray-800 mb-6">Quản lý Gói Dịch Vụ</h2>
 
       <!-- Add new package -->
-      <div class="content-area p-6 mb-6">
-        <h3 class="text-xl font-semibold mb-4">Thêm Gói Dịch Vụ Mới</h3>
-        <form class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <input
-              type="text"
-              placeholder="Tên gói"
-              class="p-2 border rounded"
-            />
-            <input type="number" placeholder="Giá" class="p-2 border rounded" />
-            <input
-              type="text"
-              placeholder="Thời hạn"
-              class="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Dung lượng"
-              class="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Tốc độ"
-              class="p-2 border rounded"
-            />
-            <input
-              type="number"
-              placeholder="Giới hạn thiết bị"
-              class="p-2 border rounded"
-            />
-          </div>
-          <textarea
-            placeholder="Mô tả"
-            class="w-full p-2 border rounded"
-            rows="3"
-          ></textarea>
+      <form id="addPackageForm" class="space-y-4" method="POST">
+        <div class="grid grid-cols-2 gap-4">
+          <input
+            type="text"
+            name="package_name"
+            placeholder="Tên gói"
+            class="p-2 border rounded"
+            required
+          />
+          <input
+            type="number"
+            name="price"
+            placeholder="Giá"
+            class="p-2 border rounded"
+            required
+          />
+          <input
+            type="text"
+            name="duration"
+            placeholder="Thời hạn"
+            class="p-2 border rounded"
+            required
+          />
+          <input
+            type="text"
+            name="data_limit"
+            placeholder="Dung lượng"
+            class="p-2 border rounded"
+            required
+          />
+          <input
+            type="text"
+            name="speed"
+            placeholder="Tốc độ"
+            class="p-2 border rounded"
+            required
+          />
+          <input
+            type="number"
+            name="device_limit"
+            placeholder="Giới hạn thiết bị"
+            class="p-2 border rounded"
+            required
+          />
+          <input
+            type="text"
+            id="editPackagesupport"
+            placeholder="Hỗ Trợ"
+            class="p-2 border rounded"
+            required
+          />
+          <input
+            type="text"
+            id="editPackageSMS"
+            placeholder="Chỉ Hỗ Trợ SMS"
+            class="p-2 border rounded"
+            required
+          />
+        </div>
+
+        <form id="addPackageForm" method="POST" action="/update_package">
+          <!-- Các input của form -->
           <button type="submit" class="btn btn-success">Thêm Gói Mới</button>
         </form>
-      </div>
+      </form>
 
       <!-- Package list -->
       <div class="content-area p-6">
@@ -216,11 +258,12 @@
             </tr>
           </thead>
           <tbody>
+            {% for user in users %}
             <tr>
-              <td class="p-2">VIP001</td>
-              <td class="p-2">VĨNH VIỄN VINA VIP</td>
-              <td class="p-2">70,000đ</td>
-              <td class="p-2">Vĩnh Viễn</td>
+              <td class="p-2">{{ user.id }}</td>
+              <td class="p-2">{{ user.package_name }}</td>
+              <td class="p-2">{{ user.price }}</td>
+              <td class="p-2">{{ user.duration }}</td>
               <td class="p-2">
                 <span
                   class="bg-green-200 text-green-800 py-1 px-2 rounded-full text-sm"
@@ -237,6 +280,8 @@
                 <button class="btn btn-danger">Xóa</button>
               </td>
             </tr>
+            {% endfor %}
+
             <!-- More package rows here -->
           </tbody>
         </table>
@@ -246,50 +291,132 @@
     <!-- Edit Package Modal -->
     <div
       id="editModal"
-      class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center overflow-y-auto"
     >
-      <div class="bg-white p-8 rounded-lg w-1/2">
+      <div
+        class="bg-white p-4 sm:p-6 md:p-8 rounded-lg w-full max-w-lg mx-auto my-8"
+      >
         <h3 class="text-xl font-semibold mb-4">Chỉnh Sửa Gói Dịch Vụ</h3>
-        <form class="space-y-4">
-          <input
-            type="text"
-            id="editPackageName"
-            placeholder="Tên gói"
-            class="w-full p-2 border rounded"
-          />
-          <input
-            type="number"
-            id="editPackagePrice"
-            placeholder="Giá"
-            class="w-full p-2 border rounded"
-          />
-          <input
-            type="text"
-            id="editPackageDuration"
-            placeholder="Thời hạn"
-            class="w-full p-2 border rounded"
-          />
-          <textarea
-            id="editPackageDescription"
-            placeholder="Mô tả"
-            class="w-full p-2 border rounded"
-            rows="3"
-          ></textarea>
-          <div class="flex justify-end space-x-2">
+        <form id="editPackageForm" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <input
+              type="text"
+              id="editPackageName"
+              name="package_name"
+              placeholder="Tên gói"
+              class="w-full p-2 border rounded"
+              required
+            />
+            <input
+              type="number"
+              id="editPackagePrice"
+              name="price"
+              placeholder="Giá"
+              class="w-full p-2 border rounded"
+              required
+            />
+            <input
+              type="text"
+              id="editPackageDuration"
+              name="duration"
+              placeholder="Thời hạn"
+              class="w-full p-2 border rounded"
+              required
+            />
+            <input
+              type="text"
+              id="editPackageDataLimit"
+              name="data_limit"
+              placeholder="Dung lượng"
+              class="w-full p-2 border rounded"
+              required
+            />
+            <input
+              type="text"
+              id="editPackageSpeed"
+              name="speed"
+              placeholder="Tốc độ"
+              class="w-full p-2 border rounded"
+              required
+            />
+            <input
+              type="number"
+              id="editPackageDeviceLimit"
+              name="device_limit"
+              placeholder="Giới hạn thiết bị"
+              class="w-full p-2 border rounded"
+              required
+            />
+            <input
+              type="text"
+              id="editPackageSupport"
+              name="support"
+              placeholder="Hỗ Trợ"
+              class="w-full p-2 border rounded"
+            />
+            <input
+              type="text"
+              id="editPackageSMS"
+              name="sms_support"
+              placeholder="Chỉ Hỗ Trợ SMS"
+              class="w-full p-2 border rounded"
+            />
+          </div>
+          <div class="flex justify-end space-x-2 mt-6">
             <button
               type="button"
-              class="btn btn-danger"
+              class="btn btn-danger px-4 py-2"
               onclick="closeEditModal()"
             >
               Hủy
             </button>
-            <button type="submit" class="btn btn-success">Lưu Thay Đổi</button>
+            <button type="submit" class="btn btn-success px-4 py-2">
+              Lưu Thay Đổi
+            </button>
           </div>
         </form>
       </div>
     </div>
 
     <script>
+      document
+        .getElementById("addPackageForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const response = await fetch("/update_package", {
+            method: "POST",
+            body: formData,
+          });
+          if (response.ok) {
+            const result = await response.text();
+            alert(result);
+            closeEditModal();
+            // Refresh the package list here
+          } else {
+            throw new Error("Cập nhật thất bại");
+          }
+        });
+
+      document
+        .getElementById("editModal")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const response = await fetch("/edit_package", {
+            method: "POST",
+            body: formData,
+          });
+          if (response.ok) {
+            const result = await response.text();
+            alert(result);
+            editModal();
+            // Refresh the package list here
+          } else {
+            throw new Error("Cập nhật thất bại");
+          }
+        });
+
       const openMenuBtn = document.getElementById("openMenu");
       const closeMenuBtn = document.getElementById("closeMenu");
       const mobileMenu = document.getElementById("mobileMenu");
