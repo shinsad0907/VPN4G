@@ -65,7 +65,7 @@ def update_package():
     speed = request.form.get('speed')
     device_limit = request.form.get('device_limit')
     support = request.form.get('support')
-    sms = request.form.get('sms')
+    sms = request.form.get('sms_support')
     
     if admin_management().add_package(package_name, price, duration, data_limit, speed, device_limit,support,sms):
         return 'package added successfully'
