@@ -15,6 +15,7 @@ class Payload:
             "datetime": current_time,
             "type": type
         }
+        print(new_payload)
 
         # Lấy dữ liệu người dùng từ API
         response = requests.get(url, headers=headers)
@@ -24,7 +25,7 @@ class Payload:
         user_data = next((user for user in users if user['user'] == user_email), None)
 
         if user_data:
-            history = user_data.get('history', {})
+            history = user_data.get('history', {})  # Chỉ lấy 'history'
 
             # Đảm bảo 'paying' và 'payed' tồn tại trong lịch sử
             history.setdefault('paying', [])
@@ -39,14 +40,14 @@ class Payload:
                         history['payed'].append(payment)
                         history['paying'].remove(payment)
                         history['paying'].append(new_payload)
-                        self._save_data(user_data['id'], history)
+                        self._save_data(user_data['id'], {"history": history})  # Chỉ lưu 'history'
                         return new_payload
                     else:
                         return history
 
             # Nếu không có giao dịch tương tự, thêm giao dịch mới vào 'paying'
             history['paying'].append(new_payload)
-            self._save_data(user_data['id'], history)
+            self._save_data(user_data['id'], {"history": history})  # Chỉ lưu 'history'
             return new_payload
         else:
             # Nếu người dùng chưa tồn tại, tạo người dùng mới với lịch sử
