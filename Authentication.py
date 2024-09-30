@@ -25,8 +25,11 @@ class Authentication:
         status = 'Gmail & Password Wrong'
         for user in users:
             if 'gmail' in user and user['gmail'] == gmail and user['password'] == password and user['power']=='Admin':
-                status = 'Login Success'
+                status = True
                 break
+            else:
+                status = False
+        
         
         return status
 
