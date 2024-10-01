@@ -191,21 +191,39 @@
       #serverSyncModal .btn-red:hover {
         background-color: #ff6b81;
       }
+
+      .corner-gif {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 100px;
+        height: 100px;
+        z-index: 9999;
+      }
     </style>
   </head>
   <body class="flex min-h-screen">
+    <div class="corner-gif">
+      <img
+        id="changing-gif"
+        src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHZsa25mdWl0NDFkbDY0cHNiaDUzZDA0Z2cyNGI0bzdxdzBmbjlnbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/2weSkZg9hvQW5Zv2fk/giphy.webp"
+        alt="Changing GIF"
+      />
+    </div>
     <!-- Sidebar (hidden on mobile) -->
     <div class="sidebar w-64 p-4 flex-shrink-0 hidden md:block">
       <h1 class="text-2xl font-bold mb-6">SHIN VPN</h1>
       <nav>
         <ul class="space-y-2">
           <li>
-            <a href="{{ url_for('home_page') }}" class="block py-2 px-4 rounded"
+            <a
+              href="{{ url_for('home_page') }}"
+              class="block py-2 px-4 rounded active"
               >Trang Chủ</a
             >
           </li>
           <li>
-            <a href="{{ url_for('document') }}" class="block py-2 px-4 active"
+            <a href="{{ url_for('document') }}" class="block py-2 px-4 rounded"
               >Tài liệu sử dụng</a
             >
           </li>
@@ -250,14 +268,14 @@
           <li>
             <a
               href="{{ url_for('home_page') }}"
-              class="block py-2 px-4 rounded text-white"
+              class="block py-2 px-4 rounded active text-white"
               >Trang Chủ</a
             >
           </li>
           <li>
             <a
               href="{{ url_for('document') }}"
-              class="block py-2 px-4 active text-white"
+              class="block py-2 px-4 rounded text-white"
               >Tài liệu sử dụng</a
             >
           </li>
@@ -439,6 +457,29 @@
     </div>
 
     <script>
+      const gifs = [
+        "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZWNmMm9kOGJ6ZXZkeGZyeDFzMmNzc2JkcDd6aDh0a29icnBkcmdudCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/6IEIFOBIb1Y2f2mcnO/giphy.webp",
+        "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExYWQwMGJ3dG15N3BreWdkYTJ5aWVhNHQ1Y2IyY2hpNG90M3VqbmptZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/s5pqEUOsNQISDw6Eu7/giphy.webp",
+        "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExb2l3eTFxMncwNnA5amNnbTg4cGo4ZndvcDVmc3N5ZmtkYnZ6MzMzeCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/IEm8kcqLVCctHJ1kWm/giphy.webp",
+        "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExdHk5cmd3Mnd3dDdneXV3bHc1b3l2bjgxZnh1d255OHV0NzU5ZXlybyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/SvK7Gxcq4QS4fNNjYH/giphy.webp",
+        "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExMDV3ZDJ3YWZoeXI1Z2x5cGw0NWFoanpjMWpwbnR1Z3RuZDJvcHc1ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/kom58KCfnj8iGYGIdm/giphy.webp",
+        "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExaXpucjRzMGR4a3o1Zmk5cGszNDVudjhwb205cTE1NWtodWtwbDl1NCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/MQGNf0r6Xagrw5KfVL/giphy.webp",
+        "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExcnRlZzk0ZmgwNGc4MzlkZjR5bXZ5eXVtMHU2c2tldTU5azdneGtnOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/h5eLsAvbbr4awWP8Eu/giphy.webp",
+        "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExbzF2dnk1aG91MmJtMDIxeTdxcjY1N253dnFudm0zMWJ2ZnRpcDc1MyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/jSBnhdRNCQElYkY0By/giphy.webp",
+        "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExNDJvM3Zla2M0NGxjcDNpeTRpeHB3dTByZWc2NzcxNjVmN2RrMGJ6MiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/DVwUa7CmyEqAERURvo/giphy.webp",
+        "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExeW8wNXk3NDExcDh0ZHA0MWZpM216cWpiMmhvazkzdGhiejMyZHR4ZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/N0NrT8LOweVJBau89o/giphy.webp",
+        "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExa203Nm9xajFuYmFnbmQ3MGNjNXU2bThscHBxMG96OGkwNHN5c2pwYSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/BvVHOQO7bLpN6zTwHH/giphy.webp",
+      ];
+      let currentIndex = 0;
+      const gifElement = document.getElementById("changing-gif");
+
+      function changeGif() {
+        currentIndex = (currentIndex + 1) % gifs.length;
+        gifElement.src = gifs[currentIndex];
+      }
+
+      // Change GIF every 5 seconds
+      setInterval(changeGif, 5000);
         // New JavaScript for Server Sync Modal
       const serverSyncBtn = document.querySelector('.btn-purple');
       const serverSyncModal = document.getElementById('serverSyncModal');
