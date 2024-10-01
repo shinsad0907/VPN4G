@@ -65,7 +65,8 @@ def update_package():
     speed = request.form.get('speed')
     device_limit = request.form.get('device_limit')
     support = request.form.get('support')
-    sms = request.form.get('sms_support')
+    sms = request.form.get('sms')
+    print(support,sms)
     
     if admin_management().add_package(package_name, price, duration, data_limit, speed, device_limit,support,sms):
         return 'package added successfully'
@@ -175,26 +176,31 @@ def index():
 @login_required
 def payment():
     user_email = current_user.id
-
+    print(request.args)
+    package_name = request.args.get('package_name', 'Tối Đa 2 Gbps')
     speed = request.args.get('speed', 'Tối Đa 2 Gbps')
     storage = request.args.get('storage', '512 GB')
     device_limit = request.args.get('device_limit', 'Id: 2 Thiết Bị/Gói')
     support = request.args.get('support', 'ADR - IOS')
     price = request.args.get('price', '10,000đ')
+    sms = request.args.get('sms', ' ')
+    duration = request.args.get('duration', '1 Tháng')
 
     order_id_buy = generate_order_id()
     order_id = datetime.now().strftime("%Y%m%d%H%M%S")
     order_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     package_info = {
+        'package_name':package_name,
         'name': 'Gói VIP',
         'speed': speed,
         'data': storage,
         'devices': device_limit,
         'support': support,
-        'sms': 'VINA Soạn YT30 gửi 888',
+        'sms': sms,
         'price': price,
-        'order_id_buy': order_id_buy
+        'order_id_buy': order_id_buy,
+        'duration':duration
     }
 
     session['payment_user'] = {
@@ -218,6 +224,8 @@ def QR():
     type = payment_info['package']['name']
     order_id = payment_info['package']['order_id_buy']
     price = payment_info['package']['price']
+    package_name = request.args.get('package_name', '1 Tháng')
+    money_transfer_content = current_user.id
 
     user_email = current_user.id
     now = datetime.now()
@@ -245,7 +253,7 @@ def QR():
     else:
         time_remaining_seconds = int(time_remaining.total_seconds())
 
-    return render_template('QR.html', time_remaining_seconds=time_remaining_seconds, package_info=order_id_buy, price=price)
+    return render_template('QR.html', time_remaining_seconds=time_remaining_seconds, package_info=order_id_buy, price=price,money_transfer_content=money_transfer_content,package_name=package_name)
 
 @app.route('/logout')
 @login_required

@@ -230,7 +230,7 @@
         <!-- Package Info -->
         <div class="package">
           <div class="package-header">
-            <h2 class="text-xl font-bold">VĨNH VIỄN VINA VIP</h2>
+            <h2 class="text-xl font-bold">{{package.package_name}}</h2>
           </div>
           <div class="p-4">
             <marquee scroll="0" class="mb-4">
@@ -254,9 +254,7 @@
               </li>
               <li class="flex justify-between">
                 <span>Giới Hạn:</span>
-                <span class="highlight"
-                  >Id: {{ package.devices }} Thiết Bị/Gói</span
-                >
+                <span class="highlight">{{ package.devices }}</span>
               </li>
               <li class="flex justify-between">
                 <span>Hỗ Trợ:</span>
@@ -294,7 +292,7 @@
             </div>
             <div class="p-4 space-y-2">
               <div class="flex justify-between">
-                <span>VĨNH VIỄN VINA VIP x Vĩnh Viễn</span>
+                <span>{{ package.device_limit }}</span>
                 <span>{{ package.price }} đ</span>
               </div>
               <div class="flex justify-between font-bold">
@@ -302,7 +300,7 @@
                 <span>{{ package.price }} đ</span>
               </div>
               <button
-                onclick="window.location.href='{{ url_for('QR', price=package.price,order_id_buy=order_id_buy) }}'"
+                onclick="window.location.href='{{ url_for('QR', price=package.price,order_id_buy=order_id_buy,package_name=package.package_name) }}'"
                 class="buy-button w-full"
               >
                 Mua ngay
@@ -315,8 +313,8 @@
             </div>
             <div class="p-4">
               <div class="flex justify-between">
-                <span>Vĩnh Viễn</span>
-                <span>70,000 đ</span>
+                <span>{{ package.duration }}</span>
+                <span>{{ package.price }} đ</span>
               </div>
             </div>
           </div>

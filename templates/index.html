@@ -289,11 +289,11 @@
               </li>
               <li class="flex justify-between">
                 <span>🛠️ Hỗ Trợ:</span>
-                <span class="highlight">{{ user.description }}</span>
+                <span class="highlight">{{ user.support }}</span>
               </li>
               <li class="flex justify-between">
                 <span>💬 Chi Hỗ Trợ SMS:</span>
-                <span class="highlight">VIETTEL</span>
+                <span class="highlight">{{ user.sms }}</span>
               </li>
             </ul>
             <div class="server-info text-center font-bold my-4">
@@ -310,7 +310,7 @@
           <div class="p-4">
             <button
               class="buy-button w-full"
-              onclick="window.location.href='{{ url_for('payment', speed='2 Gbps', storage='512 GB', device_limit='2', support='ADR - IOS',price = '70,000đ') }}'"
+              onclick="window.location.href='{{ url_for('payment',package_name= user.package_name, speed=user.speed , storage=user.data_limit, device_limit=user.device_limit, support='ADR - IOS', price=user.price, duration=user.duration) }}'"
             >
               Mua ngay
             </button>
