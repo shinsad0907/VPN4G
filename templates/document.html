@@ -444,11 +444,17 @@
           body.innerHTML = `
                     <p>Hãy bấm vào link này để đến trang hướng dẫn phát mạng nhé:</p>
                     <p><a href="https://meoohome.blogspot.com/2024/05/huong-dan-chia-se-wi-fi-bang-mang.html" target="_blank">meoohome.blogspot.com/2024/05/huong-dan-chia-se-wi-fi-bang-mang.html</a></p>
-                    <p>Hoặc Xem Video Hướng Dẫn: <a href="https://files.catbox.moe/cu9781.mp4" target="_blank">files.catbox.moe/cu9781.mp4</a></p>
+                `;
+        } else if (docId === "doc1") {
+          title.textContent = "Hướng Dẫn Viettel + Vina";
+          body.innerHTML = `
+                    <p>Hãy bấm vào link này để đến trang hướng dẫn sử dụng nhé:</p>
+                    <p><a href="/static/file/HDSD_Shin_VPN.pdf" target="_blank">Hướng dẫn sử dụng VPN 4G</a></p>
                 `;
         } else {
-          title.textContent = "Thông tin về tài liệu sẽ được cập nhật sau.";
-          body.textContent = "Chi tiết về hướng dẫn này sẽ được bổ sung.";
+          title.textContent = "Chức năng chưa cập nhật";
+          body.innerHTML = `
+                    Chức năng chưa cập nhật`;
         }
 
         setTimeout(() => {
