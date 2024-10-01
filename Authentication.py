@@ -47,6 +47,7 @@ class Authentication:
             new_account = {
                 'gmail': gmail,
                 'password': password,
+                'power':"Nomal",
                 "package": " ",
 
             }
