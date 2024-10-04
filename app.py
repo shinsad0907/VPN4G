@@ -55,6 +55,17 @@ def update_user():
     
     return f"Thông tin người dùng đã được cập nhật: Email={email}, Gói={package}, Trạng thái={status}"
 
+@app.route('/create_data_package', methods=['POST'])
+def create_data_package():
+    print(request.form)
+
+    dataname = request.form.get('dataName')
+    packageFiles = request.form.get('packageFiles')
+    dataLink = request.form.get('dataLink')
+    token = request.form.get('token')
+
+    API_package().save_newdatepackage(dataname,packageFiles,dataLink,token)
+
 
 @app.route('/update_package', methods=['POST'])
 def update_package():
@@ -115,9 +126,9 @@ def transaction_management():
 @login_required
 def user_management():
     
-    users = admin_management().User_management()
+    users,packages,data_packages = admin_management().User_management()
 
-    return render_template('User_management.html',users=users)
+    return render_template('User_management.html',users=users,packages=packages,data_packages=data_packages)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -158,6 +169,7 @@ login_manager.login_view = 'login'
 @app.route('/api/v1/client/subscribe', methods=['GET'])
 def API():
     token = request.args.get('token')
+    print(token)
     package = API_package().get_package(token)
     return package
 

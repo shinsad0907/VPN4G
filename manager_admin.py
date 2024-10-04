@@ -13,35 +13,45 @@ class admin_management:
             "Authorization": "66faae498583ac93b4096ce6",
             "Content-Type": "application/json"
         }
-    def User_management(self):
-        response = requests.get(self.url, headers=self.headers)
-        self.users = response.json()
 
-        return self.users
+        self.api = 'https://66faae498583ac93b4096ce6.mockapi.io/API'
+        self.headers_api = {
+            "Authorization": "66faae498583ac93b4096ce6",
+            "Content-Type": "application/json"
+        }
+
+    def User_management(self):
+        self.users = requests.get(self.url, headers=self.headers).json()
+        self.packages = requests.get(self.url_package_management, headers=self.headers_package_management).json()
+        self.data_packages = requests.get(self.api, headers=self.headers_api).json()
+
+        return self.users,self.packages,self.data_packages
     def save_change_user(self,email,password,package,data_amount,status):
         self.User_management()
+        self.data_packages = requests.get(self.api, headers=self.headers_api).json()
         for user in self.users:
             if user['gmail'] == email:
-            # Dữ liệu mới mà bạn muốn cập nhật
-                data = {
-                    "password": password,
-                    "package": data_amount,
-                    "service": package,
-                    "status": status
-                }
-                
-                # Tạo URL cho bản ghi cụ thể
-                user_url = f"{self.url}/{user['id']}"
-                
-                # Cập nhật toàn bộ bản ghi bằng phương thức PUT
-                response_put = requests.put(user_url, json=data, headers=self.headers)
+                for data_package in self.data_packages:
+                    if data_package['dataname'] == data_amount:
+                        data = {
+                            "password": password,
+                            "package": f'https://vpn-4-g.vercel.app/api/v1/client/subscribe?token={data_package['token']}',
+                            "service": package,
+                            "status": status
+                        }
+                        print(345345345345345345345)
+                        # Tạo URL cho bản ghi cụ thể
+                        user_url = f"{self.url}/{user['id']}"
+                        
+                        # Cập nhật toàn bộ bản ghi bằng phương thức PUT
+                        response_put = requests.put(user_url, json=data, headers=self.headers)
 
-                # Kiểm tra phản hồi
-                if response_put.status_code == 200:
-                    print("Cập nhật thành công:", response_put.json())
-                else:
-                    print("Lỗi khi cập nhật:", response_put.status_code)
-                return  # Kết thúc vòng lặp nếu đã tìm thấy người dùng và cập nhật
+                        # Kiểm tra phản hồi
+                        if response_put.status_code == 200:
+                            print("Cập nhật thành công:", response_put.json())
+                        else:
+                            print("Lỗi khi cập nhật:", response_put.status_code)
+                        return  # Kết thúc vòng lặp nếu đã tìm thấy người dùng và cập nhật
 
         print("Không tìm thấy người dùng với email:", email)
 

@@ -280,19 +280,36 @@
                 required
               >
                 <option value="">Chọn gói dịch vụ</option>
-                <option value="basic">Gói Cơ Bản</option>
-                <option value="standard">Gói Tiêu Chuẩn</option>
-                <option value="premium">Gói Cao Cấp</option>
+                {% for package in packages %}
+                <option value="{{ package.package_name }}">
+                  {{ package.package_name }}
+                </option>
+                {% endfor %}
               </select>
             </div>
             <div class="mb-4">
-              <label for="dataAmount" class="block mb-2">File Data:</label>
-              <input
+              <label for="status" class="block mb-2">File Data:</label>
+              <select
                 id="dataAmount"
                 name="dataAmount"
                 class="w-full p-2 border rounded"
                 required
-              />
+              >
+                <option value="">Chọn gói dịch vụ</option>
+                {% for data_package in data_packages %}
+                <option value="{{ data_package.dataname }}">
+                  {{ data_package.dataname }}
+                </option>
+                {% endfor %}
+                <!-- Các option sẽ được thêm vào đây bằng JavaScript -->
+              </select>
+              <button
+                type="button"
+                id="createDataBtn"
+                class="mt-2 bg-blue-500 text-white p-2 rounded"
+              >
+                Tạo File Data mới
+              </button>
             </div>
             <div class="mb-4">
               <label for="status" class="block mb-2">Trạng thái:</label>
@@ -315,8 +332,124 @@
           </form>
         </div>
       </div>
+      <!-- Modal tạo File Data mới -->
+      <!-- Modal tạo File Data mới -->
+      <div id="createDataModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <h2 class="text-2xl font-bold mb-4">Tạo File Data mới</h2>
+          <form id="createDataForm" method="POST" action="/create_data_package">
+            <div class="mb-4">
+              <label for="dataName" class="block mb-2">Tên Data:</label>
+              <input
+                type="text"
+                id="dataName"
+                name="dataName"
+                class="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            <div class="mb-4">
+              <label for="packageFiles" class="block mb-2"
+                >Chọn file package:</label
+              >
+              <select
+                id="packageFiles"
+                name="packageFiles"
+                class="w-full p-2 border rounded"
+                required
+              >
+                <option value="">Chọn gói dịch vụ</option>
+                {% for package in packages %}
+                <option value="{{ package.package_name }}">
+                  {{ package.package_name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-4">
+              <label for="dataLink" class="block mb-2">Link file data:</label>
+              <input
+                type="url"
+                id="dataLink"
+                name="dataLink"
+                class="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            <div class="mb-4">
+              <label for="token" class="block mb-2">Token:</label>
+              <div class="flex">
+                <input
+                  type="text"
+                  id="token"
+                  name="token"
+                  class="w-full p-2 border rounded"
+                  required
+                />
+                <button
+                  type="button"
+                  id="randomTokenBtn"
+                  class="ml-2 bg-gray-300 p-2 rounded"
+                >
+                  Random
+                </button>
+              </div>
+            </div>
+            <button type="submit" class="bg-blue-500 text-white p-2 rounded">
+              Tạo File Data
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
     <script>
+      const createDataBtn = document.getElementById("createDataBtn");
+      const createDataModal = document.getElementById("createDataModal");
+      const editModal = document.getElementById("editModal");
+      const randomTokenBtn = document.getElementById("randomTokenBtn");
+      const createDataForm = document.getElementById("createDataForm");
+
+      createDataForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(createDataForm);
+        try {
+          const response = await fetch("/create_data_package", {
+            method: "POST",
+            body: formData,
+          });
+          if (response.ok) {
+            const result = await response.text();
+            alert(result);
+            createDataModal.style.display = "none";
+            populateFilePackages(); // Cập nhật danh sách File Data
+          } else {
+            throw new Error("Tạo File Data thất bại");
+          }
+        } catch (error) {
+          alert("Đã xảy ra lỗi: " + error.message);
+        }
+      });
+
+      // Mở modal tạo File Data mới
+      createDataBtn.addEventListener("click", function () {
+        createDataModal.style.display = "block";
+      });
+
+      // Đóng các modal khi click vào nút đóng
+      document.querySelectorAll(".close").forEach(function (closeBtn) {
+        closeBtn.addEventListener("click", function () {
+          this.closest(".modal").style.display = "none";
+        });
+      });
+      randomTokenBtn.addEventListener("click", function () {
+        // Tạo token ngẫu nhiên giống với Python's secrets.token_hex(16)
+        const token = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
+
+        document.getElementById("token").value = token;
+      });
       // ... (script cho mobile menu) ...
 
       // Script cho modal chỉnh sửa

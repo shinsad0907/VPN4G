@@ -1,37 +1,143 @@
 import requests
 import json
+import base64
+import ast
+
 
 class API_package:
     def __init__(self) -> None:
-        url = 'https://66faae498583ac93b4096ce6.mockapi.io/API'
-        self.datas = requests.get(url).json()
+        self.API = "https://66faae498583ac93b4096ce6.mockapi.io/API"
+        self.headers_API = {
+            "Authorization": "66faae498583ac93b4096ce6",
+            "Content-Type": "application/json"
+        }
 
-    def get_package(self,token):
+        self.url_package_management = "https://66faae498583ac93b4096ce6.mockapi.io/package_management"
+        self.headers_package_management = {
+            "Authorization": "66faae498583ac93b4096ce6",
+            "Content-Type": "application/json"
+        }
+
+        self.api = 'https://66faae498583ac93b4096ce6.mockapi.io/API'
+        self.headers_api = {
+            "Authorization": "66faae498583ac93b4096ce6",
+            "Content-Type": "application/json"
+        }
+    def get_package(self, token):
+        self.datas = requests.get(self.API,headers=self.headers_API).json()
         for data in self.datas:
             if data['token'] == token:
-                return data['package']
-# API_package().get_package()
+                print(data['data_package'])
+                return data['data_package']
+            
+    def save_newdatepackage(self, dataname, packageFiles, dataLink, token):
+        packages = requests.get(self.url_package_management,headers=self.headers_package_management).json()
+        data_new = requests.get(dataLink).text
+        # Decode data_new to get the file data  
+        edit_datanew = self.edit_datanew(data_new)
+        print(edit_datanew)
+        for package in packages:
+            if package['package_name'] == packageFiles:
+                new_package = {
+                    'dataname':dataname,
+                    'package_name': packageFiles,
+                    'dataLink': dataLink,
+                    'data_package': edit_datanew,
+                    'data_limit': package['data_limit'],
+                    'device_limit': package['device_limit'].split('Id: ')[1].split(' Thiết bị/Gói')[0],
+                    'token':token
+                }
+                break
+        requests.post(self.api, headers=self.headers_api, json=new_package)
 
-# Fixing padding by adding '=' as necessary
+        
+        # second_decoding
 
-# import base64
+    def decode_datanew(self, data_new):
+        def fix_base64_padding(encoded_string):
+            # Calculate how many '=' are needed
+            padding_needed = len(encoded_string) % 4
+            if padding_needed:
+                encoded_string += '=' * (4 - padding_needed)
+            return encoded_string
 
-# # Chuỗi đã giải mã từ đoạn mã trước
-# decoded_string = """vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlNOSVx1RkYxQU5cdTFFQzBOIFlUQiBWSU5BIFx1MDAyQiBWSUVUVEVMIiwNCiAgImFkZCI6ICIzNC45Mi4yNTEuMjIzIiwNCiAgInBvcnQiOiAiODAiLA0KICAiaWQiOiAiOTE5MWFmYjUtOTJmZS00MTNjLTk0OWEtMDdjNTFjZTI1YmFlIiwNCiAgImFpZCI6ICIwIiwNCiAgInNjeSI6ICJhdXRvIiwNCiAgIm5ldCI6ICJ3cyIsDQogICJ0eXBlIjogIm5vbmUiLA0KICAiaG9zdCI6ICJkbC5rZ3ZuLmdhcmVuYW5vdy5jb20iLA0KICAicGF0aCI6ICIvaGRwYXR0di5wcm8udm4iLA0KICAidGxzIjogIiIsDQogICJzbmkiOiAiIiwNCiAgImFscG4iOiAiIiwNCiAgImZwIjogIiINCn0=
-# vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIkRhdGEgQ1x1MDBGMm4gbFx1MUVBMWlcdUZGMUEzMDAuMDAwIEdCIiwNCiAgImFkZCI6ICIzNC45Mi4yNTEuMjIzIiwNCiAgInBvcnQiOiAiODAiLA0KICAiaWQiOiAiOTE5MWFmYjUtOTJmZS00MTNjLTk0OWEtMDdjNTFjZTI1YmFlIiwNCiAgImFpZCI6ICIwIiwNCiAgInNjeSI6ICJhdXRvIiwNCiAgIm5ldCI6ICJ3cyIsDQogICJ0eXBlIjogIm5vbmUiLA0KICAiaG9zdCI6ICJkbC5rZ3ZuLmdhcmVuYW5vdy5jb20iLA0KICAicGF0aCI6ICIvaGRwYXR0di5wcm8udm4iLA0KICAidGxzIjogIiIsDQogICJzbmkiOiAiIiwNCiAgImFscG4iOiAiIiwNCiAgImZwIjogIiINCn0=
-# vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlJlc2V0IGRhdGEgc2F1XHVGRjFBNyBOZ1x1MDBFMHkiLA0KICAiYWRkIjogIjM0LjkyLjI1MS4yMjMiLA0KICAicG9ydCI6ICI4MCIsDQogICJpZCI6ICI5MTkxYWZiNS05MmZlLTQxM2MtOTQ5YS0wN2M1MWNlMjViYWUiLA0KICAiYWlkIjogIjAiLA0KICAic2N5IjogImF1dG8iLA0KICAibmV0IjogIndzIiwNCiAgInR5cGUiOiAibm9uZSIsDQogICJob3N0IjogImRsLmtndm4uZ2FyZW5hbm93LmNvbSIsDQogICJwYXRoIjogIi9oZHBhdHR2LnByby52biIsDQogICJ0bHMiOiAiIiwNCiAgInNuaSI6ICIiLA0KICAiYWxwbiI6ICIiLA0KICAiZnAiOiAiIg0KfQ==
-# vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIlx1RDgzQ1x1RERGOFx1RDgzQ1x1RERFQ1x1MjU3MFx1MjYwNlx1MjYwNiBcdUQ4MzVcdURDMEZcdUQ4MzVcdURDMDBcdUQ4MzVcdURDMTMgVk4gTlx1MUVDME4gWVRCIDFcdTI2QTFcdUQ4M0NcdURERjhcdUQ4M0NcdURERUMiLA0KICAiYWRkIjogIjM0LjkyLjI1MS4yMjMiLA0KICAicG9ydCI6ICI4MCIsDQogICJpZCI6ICI5MTkxYWZiNS05MmZlLTQxM2MtOTQ5YS0wN2M1MWNlMjViYWUiLA0KICAiYWlkIjogIjAiLA0KICAic2N5IjogImF1dG8iLA0KICAibmV0IjogIndzIiwNCiAgInR5cGUiOiAibm9uZSIsDQogICJob3N0IjogImRsLmtndm4uZ2FyZW5hbm93LmNvbSIsDQogICJwYXRoIjogIi9oZHBhdHR2LnByby52biIsDQogICJ0bHMiOiAiIiwNCiAgInNuaSI6ICIiLA0KICAiYWxwbiI6ICIiLA0KICAiZnAiOiAiIg0KfQ==
-# vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIkdcdTAwRjNpOiBOXHUxRUMwTiBZVEIgVklOQSIsDQogICJhZGQiOiAiMzQuOTIuMjUxLjIyMyIsDQogICJwb3J0IjogIjgwIiwNCiAgImlkIjogIjkxOTFhZmI1LTkyZmUtNDEzYy05NDlhLTA3YzUxY2UyNWJhZSIsDQogICJhaWQiOiAiMCIsDQogICJzY3kiOiAiYXV0byIsDQogICJuZXQiOiAid3MiLA0KICAidHlwZSI6ICJub25lIiwNCiAgImhvc3QiOiAiZGwua2d2bi5nYXJlbmFub3cuY29tIiwNCiAgInBhdGgiOiAiL2hkcGF0dHYucHJvLnZuIiwNCiAgInRscyI6ICIiLA0KICAic25pIjogIiIsDQogICJhbHBuIjogIiIsDQogICJmcCI6ICIiDQp9
-# """
+        # Fix the padding for the given encoded string
+        fixed_encoded_string = fix_base64_padding(data_new)
 
-# def encode_to_base64(decoded_string):
-#     # Mã hóa chuỗi thành bytes
-#     bytes_string = decoded_string.encode('utf-8')
-#     # Mã hóa bytes thành chuỗi base64
-#     encoded_string = base64.b64encode(bytes_string)
-#     return encoded_string.decode('utf-8')
+        # Decoding the base64 string again
+        decoded_bytes = base64.b64decode(fixed_encoded_string)
+        decoded_string = decoded_bytes.decode('utf-8', errors='ignore')
 
-# # Mã hóa lại chuỗi đã giải mã
-# encoded_string = encode_to_base64(decoded_string)
+        return self.decode_datenew_level_2(decoded_string)
+    
+    def decode_datenew_level_2(self, data_decode_second):
+        vmess_string = data_decode_second
+        data_new = []
 
-# print(encoded_string)
+        for vmess_new in vmess_string.split():
+            # Extract the base64 encoded string from the vmess format
+            if vmess_new.startswith("vmess://"):
+                base64_string = vmess_new[8:]  # Remove the "vmess://" prefix
+            else:
+                raise ValueError("Invalid string, does not start with 'vmess://'")
+
+            # Decode the base64 string
+            decoded_bytes = base64.b64decode(base64_string)
+            decoded_json_string = decoded_bytes.decode('utf-8')
+
+            # Convert the JSON string into a JSON object
+            vmess_data = json.loads(decoded_json_string)
+
+            # Append the result
+            data_new.append(vmess_data)
+
+        return data_new
+    
+    def edit_datanew(self, data_new):
+        try:
+            file_edit = self.decode_datanew(data_new)
+        except:
+            file_edit = self.decode_datenew_level_2(data_new)
+            
+        file_edit_new = []
+
+        for item in file_edit:
+            # Modify the 'ps' field and reformat the dictionary
+            modified_item = {
+                'v': item['v'], 
+                'ps': f'{item["ps"]} By ShinNohope', 
+                'add': item['add'], 
+                'port': item['port'], 
+                'id': item['id'], 
+                'aid': item['aid'], 
+                'net': item['net'], 
+                'type': item['type'], 
+                'host': item['host'], 
+                'path': item['path'],
+                'tls': item['tls']
+            }
+            file_edit_new.append(modified_item)
+        
+        return self.encode_part_1(file_edit_new)
+
+    def encode_part_1(self, vmess_data_list):
+        vmess_base64_list = []
+        for vmess_data in vmess_data_list:
+            # Convert the Python dictionary back to JSON string
+            vmess_json_string = json.dumps(vmess_data)
+            # Encode the JSON string into base64
+            vmess_base64 = base64.b64encode(vmess_json_string.encode('utf-8')).decode('utf-8')
+            # Append the encoded string with "vmess://" prefix
+            vmess_base64_list.append(f"vmess://{vmess_base64}")
+
+        # Join all the vmess strings into a single string separated by newlines
+        vmess_combined = "\n".join(vmess_base64_list)
+        print(vmess_combined)
+
+        return self.encode_to_base64(vmess_combined)
+
+    def encode_to_base64(self, decoded_string):
+        # Encode the decoded string back to base64
+        bytes_string = decoded_string.encode('utf-8')
+        encoded_string = base64.b64encode(bytes_string).decode('utf-8')
+        return encoded_string
