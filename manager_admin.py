@@ -42,7 +42,7 @@ class admin_management:
                         print(345345345345345345345)
                         # Tạo URL cho bản ghi cụ thể
                         user_url = f"{self.url}/{user['id']}"
-                        
+                        print(user_url)
                         # Cập nhật toàn bộ bản ghi bằng phương thức PUT
                         response_put = requests.put(user_url, json=data, headers=self.headers)
 

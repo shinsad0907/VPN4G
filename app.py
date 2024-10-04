@@ -170,6 +170,7 @@ login_manager.login_view = 'login'
 def API():
     token = request.args.get('token')
     print(token)
+    API_package().update_package(token)
     package = API_package().get_package(token)
     return package
 

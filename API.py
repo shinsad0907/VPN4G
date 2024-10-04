@@ -53,6 +53,48 @@ class API_package:
         
         # second_decoding
 
+    def update_package(self,token):
+        response = requests.get(self.api, headers=self.headers_api)
+        if response.status_code != 200:
+            print(f"Lỗi khi lấy gói dữ liệu: {response.status_code}")
+            return
+
+        file_packages = response.json()
+
+        # Duyệt qua từng gói và kiểm tra token
+        for file_package in file_packages:
+            if file_package['token'] == token:
+                # Lấy dữ liệu từ dataLink
+                data_response = requests.get(file_package['dataLink'])
+                if data_response.status_code != 200:
+                    print(f"Lỗi khi lấy dữ liệu: {data_response.status_code}")
+                    return
+                
+                data = data_response.text
+                print(f"Dữ liệu lấy được: {data}")
+                
+                # Chỉnh sửa dữ liệu mới
+                edit_datanew = self.edit_datanew(data)
+                print(f"Dữ liệu sau khi chỉnh sửa: {edit_datanew}")
+                
+                # Chuẩn bị gói dữ liệu để cập nhật
+                new_package = {
+                    'data_package': edit_datanew,
+                }
+                
+                # Gửi yêu cầu PUT để cập nhật
+                user_url = f"{self.api}/{file_package['id']}"
+                response_put = requests.put(user_url, json=new_package, headers=self.headers_api)
+                
+                if response_put.status_code == 200:
+                    print("Cập nhật thành công:", response_put.json())
+                else:
+                    print(f"Lỗi khi cập nhật: {response_put.status_code} - {response_put.text}")
+                return
+
+        # Nếu không tìm thấy token khớp
+        print(f"Không tìm thấy gói dữ liệu với token: {token}")
+
     def decode_datanew(self, data_new):
         def fix_base64_padding(encoded_string):
             # Calculate how many '=' are needed
