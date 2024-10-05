@@ -1,8 +1,6 @@
 import requests
 import json
 import base64
-import ast
-
 
 class API_package:
     def __init__(self) -> None:
@@ -95,45 +93,69 @@ class API_package:
         # Nếu không tìm thấy token khớp
         print(f"Không tìm thấy gói dữ liệu với token: {token}")
 
+
+
     def decode_datanew(self, data_new):
         def fix_base64_padding(encoded_string):
-            # Calculate how many '=' are needed
+            # Tính toán số lượng padding '=' cần thêm
             padding_needed = len(encoded_string) % 4
             if padding_needed:
                 encoded_string += '=' * (4 - padding_needed)
             return encoded_string
 
-        # Fix the padding for the given encoded string
+        # Sửa lại chuỗi base64 nếu thiếu padding
         fixed_encoded_string = fix_base64_padding(data_new)
 
-        # Decoding the base64 string again
-        decoded_bytes = base64.b64decode(fixed_encoded_string)
-        decoded_string = decoded_bytes.decode('utf-8', errors='ignore')
+        # Giải mã chuỗi base64
+        try:
+            decoded_bytes = base64.b64decode(fixed_encoded_string)
+            decoded_string = decoded_bytes.decode('utf-8', errors='ignore')
+        except Exception as e:
+            raise ValueError(f"Error decoding base64: {e}")
 
+        # Gọi hàm cấp 2 để tiếp tục xử lý
         return self.decode_datenew_level_2(decoded_string)
-    
+
     def decode_datenew_level_2(self, data_decode_second):
         vmess_string = data_decode_second
         data_new = []
 
         for vmess_new in vmess_string.split():
-            # Extract the base64 encoded string from the vmess format
-            if vmess_new.startswith("vmess://"):
-                base64_string = vmess_new[8:]  # Remove the "vmess://" prefix
-            else:
-                raise ValueError("Invalid string, does not start with 'vmess://'")
+            # Kiểm tra định dạng vmess://
+            if not vmess_new.startswith("vmess://"):
+                print(f"Skipping invalid string: {vmess_new}")  # In ra chuỗi không hợp lệ
+                continue  # Bỏ qua chuỗi không hợp lệ và tiếp tục với chuỗi tiếp theo
 
-            # Decode the base64 string
-            decoded_bytes = base64.b64decode(base64_string)
-            decoded_json_string = decoded_bytes.decode('utf-8')
+            base64_string = vmess_new[8:]  # Bỏ phần "vmess://"
 
-            # Convert the JSON string into a JSON object
-            vmess_data = json.loads(decoded_json_string)
+            # Sửa lỗi base64 nếu có thiếu padding
+            base64_string = self.fix_base64_padding(base64_string)
 
-            # Append the result
+            # Giải mã chuỗi base64
+            try:
+                decoded_bytes = base64.b64decode(base64_string)
+                decoded_json_string = decoded_bytes.decode('utf-8')
+            except Exception as e:
+                raise ValueError(f"Error decoding vmess base64: {e}")
+
+            # Chuyển chuỗi JSON thành đối tượng JSON
+            try:
+                vmess_data = json.loads(decoded_json_string)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Error decoding JSON: {e}")
+
+            # Thêm dữ liệu đã giải mã vào danh sách
             data_new.append(vmess_data)
 
         return data_new
+
+    def fix_base64_padding(self, encoded_string):
+        # Hàm để sửa padding base64 cho hàm decode_datenew_level_2
+        padding_needed = len(encoded_string) % 4
+        if padding_needed:
+            encoded_string += '=' * (4 - padding_needed)
+        return encoded_string
+
     
     def edit_datanew(self, data_new):
         try:
